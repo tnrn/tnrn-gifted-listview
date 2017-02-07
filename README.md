@@ -25,7 +25,7 @@ var {
   TouchableHighlight
 } = React;
 
-var GiftedListView = require('react-native-gifted-listview');
+var GiftedListView = require('react-native-gifted-listview-fork');
 
 var Example = React.createClass({
 
@@ -122,7 +122,7 @@ var styles = {
 
 ### Installation
 
-```npm install react-native-gifted-listview --save```
+```npm install react-native-gifted-listview-fork --save```
 
 
 ### Features
