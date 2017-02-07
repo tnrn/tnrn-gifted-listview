@@ -217,6 +217,7 @@ var GiftedListView = React.createClass({
       this.setState({
         isRefreshing: true,
       });
+      this.refs.listview.scrollTo({y: 0, animated: true});  
       this._setPage(1);
       this.props.onFetch(this._getPage(), this._postRefresh, options);
     }
