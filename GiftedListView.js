@@ -1,8 +1,9 @@
 'use strict'
 
-import React, { Component, } from 'react'
-import PropTypes from 'prop-types'
+import React, { Component, } from 'react';
+import PropTypes from 'prop-types';
 import {
+  FlatList,
   ListView,
   StyleSheet,
   TouchableHighlight,
@@ -10,8 +11,7 @@ import {
   Text,
   RefreshControl,
   ActivityIndicator,
-} from 'react-native'
-
+} from 'react-native';
 
 // small helper function which merged two objects into one
 function MergeRecursive(obj1, obj2) {
@@ -28,10 +28,13 @@ function MergeRecursive(obj1, obj2) {
   }
   return obj1;
 }
+
 export default class GiftedListView extends Component {
 
   constructor(props) {
     super(props);
+    this.state = this.getInitState();
+    this.mounted = false;
   }
 
   static defaultProps = {
@@ -93,33 +96,33 @@ export default class GiftedListView extends Component {
   _setRows(rows) { this._rows = rows; }
   _getRows() { return this._rows; }
 
-  paginationFetchingView() {
+  paginationFetchingView = () => {
     if (this.props.paginationFetchingView) {
       return this.props.paginationFetchingView();
     }
 
     return (
-      <View style={[this.defaultStyles.paginationView, this.props.customStyles.paginationView]}>
+      <View style={[styles.paginationView, this.props.customStyles.paginationView]}>
         <ActivityIndicator />
       </View>
     );
-  }
+  };
 
-  paginationAllLoadedView() {
+  paginationAllLoadedView = () => {
     if (this.props.paginationAllLoadedView) {
       return this.props.paginationAllLoadedView();
     }
 
     return (
-      <View style={[this.defaultStyles.paginationView, this.props.customStyles.paginationView]}>
-        <Text style={[this.defaultStyles.actionsLabel, this.props.customStyles.actionsLabel]}>
+      <View style={[styles.paginationView, this.props.customStyles.paginationView]}>
+        <Text style={[styles.actionsLabel, this.props.customStyles.actionsLabel]}>
           ~
         </Text>
       </View>
     );
-  }
+  };
 
-  paginationWaitingView(paginateCallback) {
+  paginationWaitingView = (paginateCallback) => {
     if (this.props.paginationWaitingView) {
       return this.props.paginationWaitingView(paginateCallback);
     }
@@ -128,29 +131,30 @@ export default class GiftedListView extends Component {
       <TouchableHighlight
         underlayColor='#c8c7cc'
         onPress={paginateCallback}
-        style={[this.defaultStyles.paginationView, this.props.customStyles.paginationView]}
+        style={[styles.paginationView, this.props.customStyles.paginationView]}
       >
-        <Text style={[this.defaultStyles.actionsLabel, this.props.customStyles.actionsLabel]}>
+        <Text style={[styles.actionsLabel, this.props.customStyles.actionsLabel]}>
           Load more
         </Text>
       </TouchableHighlight>
     );
-  }
+  };
 
-  headerView() {
+  headerView = () => {
     if (this.state.paginationStatus === 'firstLoad' || !this.props.headerView) {
       return null;
     }
     return this.props.headerView();
-  }
-  emptyView(refreshCallback) {
+  };
+
+  emptyView = (refreshCallback) => {
     if (this.props.emptyView) {
       return this.props.emptyView(refreshCallback);
     }
 
     return (
-      <View style={[this.defaultStyles.defaultView, this.props.customStyles.defaultView]}>
-        <Text style={[this.defaultStyles.defaultViewTitle, this.props.customStyles.defaultViewTitle]}>
+      <View style={[styles.defaultView, this.props.customStyles.defaultView]}>
+        <Text style={[styles.defaultViewTitle, this.props.customStyles.defaultViewTitle]}>
           Sorry, there is no content to display
         </Text>
 
@@ -164,74 +168,84 @@ export default class GiftedListView extends Component {
         </TouchableHighlight>
       </View>
     );
-  }
-  renderSeparator() {
+  };
+
+  renderSeparator = () => {
     if (this.props.renderSeparator) {
       return this.props.renderSeparator();
     }
 
     return (
-      <View style={[this.defaultStyles.separator, this.props.customStyles.separator]} />
+      <View style={[styles.separator, this.props.customStyles.separator]} />
     );
-  }
+  };
 
-  getInitialState() {
+  getInitState = () => {
     this._setPage(1);
     this._setRows([]);
 
     var ds = null;
     if (this.props.withSections === true) {
-      ds = new ListView.DataSource({
-        rowHasChanged: this.props.rowHasChanged ? this.props.rowHasChanged : (row1, row2) => row1 !== row2,
-        sectionHeaderHasChanged: (section1, section2) => section1 !== section2,
-      });
+      // ds = new ListView.DataSource({
+      //   rowHasChanged: this.props.rowHasChanged ? this.props.rowHasChanged : (row1, row2) => row1 !== row2,
+      //   sectionHeaderHasChanged: (section1, section2) => section1 !== section2,
+      // });
       return {
-        dataSource: ds.cloneWithRowsAndSections(this._getRows()),
+        // dataSource: ds.cloneWithRowsAndSections(this._getRows()),
+        dataSource: this._getRows(),
         isRefreshing: false,
         paginationStatus: 'firstLoad',
       };
     } else {
-      ds = new ListView.DataSource({
-        rowHasChanged: this.props.rowHasChanged ? this.props.rowHasChanged : (row1, row2) => row1 !== row2,
-      });
+      // ds = new ListView.DataSource({
+      //   rowHasChanged: this.props.rowHasChanged ? this.props.rowHasChanged : (row1, row2) => row1 !== row2,
+      // });
       return {
-        dataSource: ds.cloneWithRows(this._getRows()),
+        // dataSource: ds.cloneWithRows(this._getRows()),
+        dataSource: this._getRows(),
         isRefreshing: false,
         paginationStatus: 'firstLoad',
       };
     }
-  }
+  };
 
   componentDidMount() {
+    this.mounted = true;
     this.props.onFetch(this._getPage(), this._postRefresh, { firstLoad: true });
   }
 
-  setNativeProps(props) {
-    this.refs.listview.setNativeProps(props);
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
-  _refresh() {
+  setNativeProps = (props) => {
+    this.flatList.setNativeProps(props);
+  };
+
+  _refresh = () => {
     this._onRefresh({ external: true });
-  }
+  };
 
-  _onRefresh(options = {}) {
-    if (this.isMounted()) {
+  _onRefresh = (options = {}) => {
+    if (this.mounted) {
       this.setState({
         isRefreshing: true,
       });
-      this.refs.listview.scrollTo({ y: 0, animated: true });
+      const { dataSource } = this.state
+      dataSource && dataSource.length > 0 && this.flatList.scrollToIndex({index: 0, animated: true});
       this._setPage(1);
       this.props.onFetch(this._getPage(), this._postRefresh, options);
     }
-  }
+  };
 
-  _postRefresh(rows = [], options = {}) {
-    if (this.isMounted()) {
+  _postRefresh = (rows = [], options = {}) => {
+    if (this.mounted) {
       this._updateRows(rows, options);
     }
-  }
+  };
 
-  _onPaginate() {
+
+  _onPaginate = () => {
     if (this.state.paginationStatus === 'allLoaded') {
       return null
     } else {
@@ -240,9 +254,9 @@ export default class GiftedListView extends Component {
       });
       this.props.onFetch(this._getPage() + 1, this._postPaginate, {});
     }
-  }
+  };
 
-  _postPaginate(rows = [], options = {}) {
+  _postPaginate = (rows = [], options = {}) => {
     this._setPage(this._getPage() + 1);
     var mergedRows = null;
     if (this.props.withSections === true) {
@@ -256,20 +270,20 @@ export default class GiftedListView extends Component {
     }
 
     this._updateRows(mergedRows, options);
-  }
+  };
 
-  _updateRows(rows = [], options = {}) {
+  _updateRows = (rows = [], options = {}) => {
     if (rows !== null) {
       this._setRows(rows);
       if (this.props.withSections === true) {
         this.setState({
-          dataSource: this.state.dataSource.cloneWithRowsAndSections(rows),
+          dataSource: rows,
           isRefreshing: false,
           paginationStatus: (options.allLoaded === true ? 'allLoaded' : 'waiting'),
         });
       } else {
         this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(rows),
+          dataSource: rows,
           isRefreshing: false,
           paginationStatus: (options.allLoaded === true ? 'allLoaded' : 'waiting'),
         });
@@ -280,9 +294,9 @@ export default class GiftedListView extends Component {
         paginationStatus: (options.allLoaded === true ? 'allLoaded' : 'waiting'),
       });
     }
-  }
+  };
 
-  _renderPaginationView() {
+  _renderPaginationView = () => {
     if ((this.state.paginationStatus === 'fetching' && this.props.pagination === true) || (this.state.paginationStatus === 'firstLoad' && this.props.firstLoader === true)) {
       return this.paginationFetchingView();
     } else if (this.state.paginationStatus === 'waiting' && this.props.pagination === true && (this.props.withSections === true || this._getRows().length > 0)) {
@@ -294,9 +308,9 @@ export default class GiftedListView extends Component {
     } else {
       return null;
     }
-  }
+  };
 
-  renderRefreshControl() {
+  renderRefreshControl = () => {
     if (this.props.renderRefreshControl) {
       return this.props.renderRefreshControl({ onRefresh: this._onRefresh });
     }
@@ -311,19 +325,18 @@ export default class GiftedListView extends Component {
         title={this.props.refreshableTitle}
       />
     );
-  }
+  };
 
   render() {
     return (
-      <ListView
-        ref="listview"
-        dataSource={this.state.dataSource}
-        renderRow={this.props.rowView}
+      <FlatList
+        ref={flatList => { this.flatList = flatList; }}
+        data={this.state.dataSource}
+        renderItem={({item, index}) => this.props.rowView(item , 0, index)}
         renderSectionHeader={this.props.sectionHeaderView}
-        renderHeader={this.headerView}
-        renderFooter={this._renderPaginationView}
+        ListHeaderComponent={this.headerView}
+        ListFooterComponent={this._renderPaginationView}
         renderSeparator={this.renderSeparator}
-
         automaticallyAdjustContentInsets={false}
         scrollEnabled={this.props.scrollEnabled}
         canCancelContentTouches={true}
@@ -361,4 +374,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
   }
-})
+});
