@@ -12,7 +12,7 @@ var {
   TouchableHighlight
 } = require('react-native');
 
-var GiftedListView = require('react-native-gifted-listview');
+var GiftedListView = require('tnrn-gifted-listview');
 
 var Example = React.createClass({
   

@@ -6,8 +6,8 @@
     "start": "node_modules/react-native/packager/packager.sh"
   },
   "dependencies": {
-    "react-native": "^0.17.0",
-    "react-native-gifted-listview": "0.0.7",
-    "react-native-gifted-spinner": "0.0.3"
+    "react-native": "^0.55.0",
+    "tnrn-gifted-listview": "^0.0.18",
+    "react-native-gifted-spinner": "0.1.0"
   }
 }

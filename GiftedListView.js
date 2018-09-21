@@ -4,7 +4,6 @@ import React, { Component, } from 'react';
 import PropTypes from 'prop-types';
 import {
   FlatList,
-  ListView,
   StyleSheet,
   TouchableHighlight,
   View,
@@ -232,7 +231,7 @@ export default class GiftedListView extends Component {
         isRefreshing: true,
       });
       const { dataSource } = this.state
-      dataSource && dataSource.length > 0 && this.flatList.scrollToIndex({index: 0, animated: true});
+      dataSource && dataSource.length > 0 && this.flatList.scrollToIndex({ index: 0, animated: true });
       this._setPage(1);
       this.props.onFetch(this._getPage(), this._postRefresh, options);
     }
@@ -332,7 +331,7 @@ export default class GiftedListView extends Component {
       <FlatList
         ref={flatList => { this.flatList = flatList; }}
         data={this.state.dataSource}
-        renderItem={({item, index}) => this.props.rowView(item , 0, index)}
+        renderItem={({ item, index }) => this.props.rowView(item, 0, index)}
         renderSectionHeader={this.props.sectionHeaderView}
         ListHeaderComponent={this.headerView}
         ListFooterComponent={this._renderPaginationView}
